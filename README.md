@@ -1,9 +1,16 @@
-# An Employee managemnt app with Python Flask, React and SQLite.
+# 基于Python Flask, React和SQLite的员工管理系统
 
 ![](./screenshot.png)
 
 ## 目录
-#### &sect; [技术栈](#features)
+
+#### &sect; [功能](#features)
+
+#### &sect; [技术栈](#tech)
+  * [前端](#frontend)
+  * [后端](#backend)
+  * [数据库](#database)
+  
 #### &sect; [快速开始](#getting-started)
   * [安装](#installation)
   * [启动](#start)
@@ -17,13 +24,30 @@
 
 ****
 
-## <a name="features">&sect; 技术栈</a>
+## <a name="features">&sect; 功能</a> 
+* 对Employee表中记录的增/删/改/查操作
+* 注册/登录/登出
+* 用户权限管理 (Ongoing)
+* 操作日志 (Ongoing)
 
+## <a name="tech">&sect; 技术栈</a>  
+
+### <a name="frontend">⊙ 前端</a>  
 * React 18.2.0 前端开发框架
 * React Bootstrap UI库
 * React Router 响应式路由
 * React Hook Form 表单验证库
 * React Token Auth 登录验证库(Token)
+
+### <a name="backend">⊙ 后端</a>  
+* Python Flask 后端开发框架
+* flask_restful 建立REST APIs
+* flask_jwt_extended Server端Token校验
+* flask_sqlalchemy 数据库交互
+* werkzeug.security 密码加密及校验
+
+### <a name="database">⊙ 数据库</a>
+* SQLite3
 
 ## <a name="getting-started">&sect; 快速开始</a>
 
@@ -46,7 +70,8 @@
 │  package-lock.json
 │  README.md
 │  screenshot.png
-│  
+│  requirements.txt
+│
 ├─backend 
 │  │─src
 │      │  app.py
