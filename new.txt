@@ -1,0 +1,37 @@
+│  package-lock.json
+│  README.md
+│  screenshot.png
+│  
+├─backend 
+│  │─src
+│      │  app.py
+│      │  init_db.py
+│      │  models.py
+│      │  myweb.db
+│      │  settings.py
+│              
+├─frontend
+│  │─node_modules 
+│  │─public  
+│  │─src
+│      │   App.css
+│      │   App.js
+│      │   App.test.js
+│      │   auth.js
+│      │   index.css
+│      │   index.js
+│      │   logo.svg
+│      │
+│      │-components
+│           │   About.js
+│           │   Employee.js
+│           │   Login.js
+│           │   Navbar.js
+│           │   SignUp.js
+│  │   .env
+│  │   .gitignore
+│  │   package-lock.json
+│  │   package.json
+│  │   README.md
+
+    
