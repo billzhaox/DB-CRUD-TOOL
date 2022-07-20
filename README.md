@@ -70,7 +70,6 @@
 │  package-lock.json
 │  README.md
 │  screenshot.png
-│  requirements.txt
 │
 ├─backend 
 │  │─src
@@ -79,6 +78,7 @@
 │      │  models.py
 │      │  myweb.db
 │      │  settings.py
+│  │   requirements.txt
 │              
 ├─frontend
 │  │─node_modules 
