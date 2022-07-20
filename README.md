@@ -74,7 +74,6 @@
 ├─backend 
 │  │─src
 │      │  app.py
-│      │  init_db.py
 │      │  models.py
 │      │  myweb.db
 │      │  settings.py
