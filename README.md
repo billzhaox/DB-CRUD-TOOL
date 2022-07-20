@@ -53,12 +53,12 @@
 
 ### <a name="installation">⊙ 安装</a>
 
-后端依赖：在项目根目录下：`pip install -r requirements.txt`  
-前端依赖：在`frontend`目录下： `npm install`
+后端依赖：在`backend`目录下：执行`pip install -r requirements.txt`  
+前端依赖：在`frontend`目录下： 执行`npm install`
 
 ### <a name="start">⊙ 启动</a>
-后端启动：在`backend/src`目录下：`python app.py`  
-前端启动：在`frontend`目录下： `npm start`  
+后端启动：在`backend/src`目录下：执行`python app.py`  
+前端启动：在`frontend`目录下： 执行`npm start`  
 如无意外，默认浏览器就会自动打开 `localhost:3000`，若浏览器没有自动弹出，则请自行手动访问  
 
 ***
