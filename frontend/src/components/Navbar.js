@@ -6,7 +6,7 @@ const API = process.env.REACT_APP_API;
 
 export const Navbar = () => {
   const [logged] = useAuth();
-  const [uname, setUname] = useState("Bill");
+  const [uname, setUname] = useState("");
   if(logged){
     const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
     console.log(token)
@@ -44,6 +44,9 @@ export const Navbar = () => {
           </li>
           {logged?
           <>
+            <li className="nav-item">
+              <Link className="nav-link" to="/opslog">Operations Log</Link>
+            </li>
             <li className="nav-item">
               <a className="nav-link">Hi, {uname}!</a>
             </li>

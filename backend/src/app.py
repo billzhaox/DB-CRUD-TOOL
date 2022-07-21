@@ -4,25 +4,28 @@ from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
-from bson import ObjectId
-from models import Employees, Users
+from models import Employees, Users, OpsLog
 from settings import app, api, db
+from datetime import datetime
+import json
 
 # Settings
 CORS(app, resources=r'/*', supports_credentials=True)
 
 # Routes
 
-# shows a list of all employees, and lets you POST to add new employees
+# shows the list of all employees, and lets you POST to add new employees
 class EmployeesList(Resource):
     def get(self):
         employees = Employees.query.all()
         return jsonify([em.to_json() for em in employees])
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
         if not data:
             abort(404)
+        print(data)
         employee = Employees(
             name=data.get('name'),
             email=data.get('email'),
@@ -30,6 +33,14 @@ class EmployeesList(Resource):
         )
         db.session.add(employee)
         db.session.commit()
+        mylog = OpsLog(
+            username=get_jwt_identity(),
+            timestamp = datetime.now(),
+            operation='CREATE',
+            ops_obj = data.get('name'),
+            request_body = json.dumps(data)
+        )
+        mylog.save()
         return make_response(jsonify(employee.to_json()), 201)
 
 api.add_resource(EmployeesList, '/employees')
@@ -42,14 +53,24 @@ class Employee(Resource):
             abort(400, message="Employee {} doesn't exist".format(id))
         return jsonify(employee.to_json())
 
+    @jwt_required()
     def delete(self, id):
         employee = Employees.query.get(id)
         if employee is None:
             abort(400, message="Employee {} doesn't exist".format(id))
         db.session.delete(employee)
         db.session.commit()
+        mylog = OpsLog(
+            username=get_jwt_identity(),
+            timestamp = datetime.now(),
+            operation='DELETE',
+            ops_obj = data.get('name'),
+            request_body = json.dumps(data)
+        )
+        mylog.save()
         return make_response(jsonify({'message': 'Item Deleted'}), 204)
 
+    @jwt_required()
     def put(self, id):
         data = request.get_json()
         if not data:
@@ -57,10 +78,18 @@ class Employee(Resource):
         employee = Employees.query.get(id)
         if employee is None:
             abort(400)
-        employee.name = data.get('name', employee.name)
-        employee.email = data.get('email', employee.email)
-        employee.department = data.get('department', employee.department)
+        employee.name = data.get('name')
+        employee.email = data.get('email')
+        employee.department = data.get('department')
         db.session.commit()
+        mylog = OpsLog(
+            username=get_jwt_identity(),
+            timestamp = datetime.now(),
+            operation='UPDATE',
+            ops_obj = data.get('name'),
+            request_body = json.dumps(data)
+        )
+        mylog.save()
         return make_response(jsonify(employee.to_json()), 201)
 
 api.add_resource(Employee, '/employees/<id>')
@@ -119,6 +148,15 @@ class GetUser(Resource):
         return make_response(jsonify({"uname":current_user}),200)
 
 api.add_resource(GetUser, '/getUser')
+
+# shows the list of all logs
+class LogsList(Resource):
+    @jwt_required()
+    def get(self):
+        logs = OpsLog.query.all()
+        return jsonify([log.to_json() for log in logs])
+
+api.add_resource(LogsList, '/logs')
 
 if __name__ == "__main__":
     app.run(debug=True)

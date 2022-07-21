@@ -90,12 +90,15 @@
 │      │   index.css
 │      │   index.js
 │      │   logo.svg
+│      │   serviceWorker.js
+│      │   setupTests.js
 │      │
 │      │-components
 │           │   About.js
 │           │   Employee.js
 │           │   Login.js
 │           │   Navbar.js
+│           │   OpsLog.js
 │           │   SignUp.js
 │  │   .env
 │  │   .gitignore

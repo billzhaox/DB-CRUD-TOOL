@@ -17,13 +17,16 @@ export const Employee = () => {
 
   let [employees, setEmployees] = useState([]);
 
+  const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!editing) {
       const res = await fetch(`${API}/employees`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${JSON.parse(token)}`
         },
         body: JSON.stringify({
           name,
@@ -37,6 +40,7 @@ export const Employee = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${JSON.parse(token)}`
         },
         body: JSON.stringify({
           name,
@@ -68,6 +72,10 @@ export const Employee = () => {
     if (userResponse) {
       const res = await fetch(`${API}/employees/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${JSON.parse(token)}`
+        }
       });
       await getEmployees();
     }

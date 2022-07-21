@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment } from "react"
 
 export const About = () => (
   <Fragment>
@@ -11,4 +11,4 @@ export const About = () => (
       </p>
     </div>
   </Fragment>
-);
+)
