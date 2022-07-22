@@ -16,6 +16,7 @@
   * [启动](#start)
 
 #### &sect; [项目架构](#architecture)
+  * [三层架构](#layers)
   * [目录结构](#tree)
   
 #### &sect; [测试](#testing)  
@@ -26,9 +27,21 @@
 
 ## <a name="features">&sect; 功能</a> 
 * 对Employee表中记录的增/删/改/查操作
-* 注册/登录/登出
-* 用户权限管理 (Ongoing)
-* 操作日志 (Ongoing)
+* 用户注册/登录/登出
+* 系统操作日志
+* 用户权限管理 (Ongoing)  
+
+角色及其权限设计：  
+
+|  角色   | 权限  |
+|  ----  | ----  |
+| 普通员工  | 查 |
+| 管理员  | 增/删/改/查 |
+| 超级管理员  | 增/删/改/查 + 查看操作日志 |
+
+
+
+
 
 ## <a name="tech">&sect; 技术栈</a>  
 
@@ -64,6 +77,12 @@
 ***
 
 ## <a name="architecture">&sect; 项目架构</a>
+
+### <a name="layers">⊙ 三层架构</a>
+* Client: 视图层，即展示给用户的界面，与用户直接进行交互；
+* Server: 业务逻辑层，利用Model层提供的能力处理Client请求，并将处理结果返回Client层，提供相应响应；
+* Model: 数据访问层，为Server提供与数据库交互的能力；
+
 ### <a name="tree">⊙ 目录结构</a>
 ```
 .
