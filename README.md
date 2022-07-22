@@ -92,13 +92,13 @@
 │
 ├─backend 
 │  │─src
-│      │  app.py
-│      │  models.py
+│      │  app.py      //Controller
+│      │  models.py   //Model
 │      │  myweb.db
 │      │  settings.py
 │  │   requirements.txt
 │              
-├─frontend
+├─frontend            //View
 │  │─node_modules 
 │  │─public  
 │  │─src
