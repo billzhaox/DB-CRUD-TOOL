@@ -80,7 +80,7 @@
 
 ### <a name="layers">⊙ 三层架构</a>
 * Client: 视图层，即展示给用户的界面，与用户直接进行交互；
-* Server: 业务逻辑层，利用Model层提供的能力处理Client请求，并将处理结果返回Client层，提供相应响应；
+* Server: 业务逻辑层，利用Model层提供的能力处理Client请求，并将处理结果返回至Client层；
 * Model: 数据访问层，为Server提供与数据库交互的能力；
 
 ### <a name="tree">⊙ 目录结构</a>
