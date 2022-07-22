@@ -16,7 +16,7 @@
   * [数据库](#database)
 
 #### &sect; [项目架构](#architecture)
-  * [三层架构](#layers)
+  * [MVC三层架构](#layers)
   * [目录结构](#tree)
   
 #### &sect; [测试](#testing)  
@@ -78,10 +78,10 @@
 
 ## <a name="architecture">&sect; 项目架构</a>
 
-### <a name="layers">⊙ 三层架构</a>
-* Client: 视图层，即展示给用户的界面，与用户直接进行交互；
-* Server: 业务逻辑层，利用Model层提供的能力处理Client请求，并将处理结果返回至Client层；
-* Model: 数据访问层，为Server提供与数据库交互的能力；
+### <a name="layers">⊙ MVC三层架构</a>
+* View: 视图层，即展示给用户的界面，与用户直接进行交互；
+* Controller: 控制层，接受Client端的输入并调用模型和视图去完成用户的需求，并将处理结果返回至Client层；
+* Model: 数据访问层，提供与数据库交互的能力；
 
 ### <a name="tree">⊙ 目录结构</a>
 ```
