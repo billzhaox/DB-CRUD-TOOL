@@ -6,14 +6,14 @@
 
 #### &sect; [功能](#features)
 
+#### &sect; [快速开始](#getting-started)
+  * [安装](#installation)
+  * [启动](#start)
+  
 #### &sect; [技术栈](#tech)
   * [前端](#frontend)
   * [后端](#backend)
   * [数据库](#database)
-  
-#### &sect; [快速开始](#getting-started)
-  * [安装](#installation)
-  * [启动](#start)
 
 #### &sect; [项目架构](#architecture)
   * [三层架构](#layers)
@@ -39,9 +39,21 @@
 | 管理员  | 增/删/改/查 |
 | 超级管理员  | 增/删/改/查 + 查看操作日志 |
 
+***
 
+## <a name="getting-started">&sect; 快速开始</a>
 
+### <a name="installation">⊙ 安装</a>
 
+后端依赖：在`backend`目录下：执行`pip install -r requirements.txt`  
+前端依赖：在`frontend`目录下： 执行`npm install`
+
+### <a name="start">⊙ 启动</a>
+后端启动：在`backend/src`目录下：执行`python app.py`  
+前端启动：在`frontend`目录下： 执行`npm start`  
+如无意外，默认浏览器就会自动打开 `localhost:3000`，若浏览器没有自动弹出，则请自行手动访问  
+
+***
 
 ## <a name="tech">&sect; 技术栈</a>  
 
@@ -61,18 +73,6 @@
 
 ### <a name="database">⊙ 数据库</a>
 * SQLite3
-
-## <a name="getting-started">&sect; 快速开始</a>
-
-### <a name="installation">⊙ 安装</a>
-
-后端依赖：在`backend`目录下：执行`pip install -r requirements.txt`  
-前端依赖：在`frontend`目录下： 执行`npm install`
-
-### <a name="start">⊙ 启动</a>
-后端启动：在`backend/src`目录下：执行`python app.py`  
-前端启动：在`frontend`目录下： 执行`npm start`  
-如无意外，默认浏览器就会自动打开 `localhost:3000`，若浏览器没有自动弹出，则请自行手动访问  
 
 ***
 
@@ -125,6 +125,9 @@
 │  │   package.json
 │  │   README.md
 ```
+
+***
+
 ## <a name="testing">&sect; 测试</a>
 * To be updated  
 
