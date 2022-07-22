@@ -64,8 +64,7 @@ class Employee(Resource):
             username=get_jwt_identity(),
             timestamp = datetime.now(),
             operation='DELETE',
-            ops_obj = data.get('name'),
-            request_body = json.dumps(data)
+            ops_obj = employee.name
         )
         mylog.save()
         return make_response(jsonify({'message': 'Item Deleted'}), 204)

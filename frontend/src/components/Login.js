@@ -33,7 +33,7 @@ export const LoginPage=()=>{
            
            if (rdata){
             login(rdata.access_token)
-            console.log(data.username)
+            console.log(data.username) 
             navigate('/',{state:{uname:data.username}})
            }
            else{
