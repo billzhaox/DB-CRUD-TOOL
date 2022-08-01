@@ -34,7 +34,7 @@ export const LoginPage=()=>{
            if (rdata){
             login(rdata.access_token)
             console.log(data.username) 
-            navigate('/',{state:{uname:data.username}})
+            navigate('/it',{state:{uname:data.username}})
            }
            else{
                alert('Invalid username or password')

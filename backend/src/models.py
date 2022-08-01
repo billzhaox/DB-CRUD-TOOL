@@ -15,6 +15,20 @@ class Employees(db.Model):
             'email': self.email,
             'department': self.department
         }
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+    
+    def update(self, data):
+        self.name = data.get('name')
+        self.email = data.get('email')
+        self.department = data.get('department')
+        db.session.commit()
 
 class Users(db.Model):
     __tablename__ = 'user'

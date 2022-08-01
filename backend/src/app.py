@@ -1,97 +1,137 @@
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, abort
 from flask_cors import CORS
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 
 from models import Employees, Users, OpsLog
-from settings import app, api, db
+# from settings import app, api, db, set_uri, myTable
 from datetime import datetime
 import json
+from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Api
+from sqlalchemy.ext.automap import automap_base
+
+# Instantiation
+app = Flask(__name__)
+api = Api(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///myweb.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["JWT_SECRET_KEY"] = b'\xfd(0\xec0e\xcd`\x94~\x17\xdb<m\x98\xca'
+# Database
+db = SQLAlchemy(app)
+JWTManager(app)
+myTable = "nones"
+
+def as_dict(obj):
+    data = obj.__dict__
+    # print("dict ", data)
+    data.pop('_sa_instance_state', None)
+    return data
 
 # Settings
 CORS(app, resources=r'/*', supports_credentials=True)
 
 # Routes
 
-# shows the list of all employees, and lets you POST to add new employees
-class EmployeesList(Resource):
-    def get(self):
-        employees = Employees.query.all()
-        return jsonify([em.to_json() for em in employees])
+class DBSet(Resource):
 
-    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        print(data)
+        if not data:
+            abort(404)
+        global app
+        app.config['SQLALCHEMY_DATABASE_URI'] = data.get('uri')
+        global myTable
+        Base = automap_base()
+        Base.prepare(db.engine, reflect=True)
+        myTable = Base.classes[data.get('table_name')]
+        myTable.as_dict = as_dict
+        # set_uri(data.get('uri'),data.get('table_name'))
+        return 201
+
+api.add_resource(DBSet, '/dbset')
+
+# shows the list of all employees, and lets you POST to add new employees
+class ItemsList(Resource):
+    def get(self):
+        # TODO: select certain columns
+        results = db.session.query(myTable).all()
+        # print(results)
+        return jsonify([r.as_dict() for r in results])
+
+    # @jwt_required()
     def post(self):
         data = request.get_json()
         if not data:
             abort(404)
         print(data)
-        employee = Employees(
-            name=data.get('name'),
-            email=data.get('email'),
-            department=data.get('department')
-        )
-        db.session.add(employee)
+        new_item = myTable(**data)
+        db.session.add(new_item)
         db.session.commit()
-        mylog = OpsLog(
-            username=get_jwt_identity(),
-            timestamp = datetime.now(),
-            operation='CREATE',
-            ops_obj = data.get('name'),
-            request_body = json.dumps(data)
-        )
-        mylog.save()
-        return make_response(jsonify(employee.to_json()), 201)
+        # mylog = OpsLog(
+        #     username=get_jwt_identity(),
+        #     timestamp = datetime.now(),
+        #     operation='CREATE',
+        #     ops_obj = data.get('name'),
+        #     request_body = json.dumps(data)
+        # )
+        # mylog.save()
 
-api.add_resource(EmployeesList, '/employees')
+        
+        return make_response({}, 201)
+
+api.add_resource(ItemsList, '/items')
 
 # shows a single employee and lets you edit or delete an item
-class Employee(Resource):
+class Item(Resource):
     def get(self, id):
-        employee = Employees.query.get(id)
-        if employee is None:
-            abort(400, message="Employee {} doesn't exist".format(id))
-        return jsonify(employee.to_json())
+        item = db.session.query(myTable).get(id)
+        if item is None:
+            abort(400, message="Item {} doesn't exist".format(id))
+        return jsonify(item.as_dict())
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, id):
-        employee = Employees.query.get(id)
-        if employee is None:
-            abort(400, message="Employee {} doesn't exist".format(id))
-        db.session.delete(employee)
+        item = db.session.query(myTable).get(id)
+        if item is None:
+            abort(400, message="Item {} doesn't exist".format(id))
+        db.session.delete(item)
         db.session.commit()
-        mylog = OpsLog(
-            username=get_jwt_identity(),
-            timestamp = datetime.now(),
-            operation='DELETE',
-            ops_obj = employee.name
-        )
-        mylog.save()
+        # mylog = OpsLog(
+        #     username=get_jwt_identity(),
+        #     timestamp = datetime.now(),
+        #     operation='DELETE',
+        #     ops_obj = employee.name
+        # )
+        # mylog.save()
         return make_response(jsonify({'message': 'Item Deleted'}), 204)
 
-    @jwt_required()
+    # @jwt_required()
     def put(self, id):
         data = request.get_json()
         if not data:
             abort(404)
-        employee = Employees.query.get(id)
-        if employee is None:
-            abort(400)
-        employee.name = data.get('name')
-        employee.email = data.get('email')
-        employee.department = data.get('department')
+        print("data: ",data)
+        item = db.session.query(myTable).filter(myTable.id==id)
+        if item is None:
+            abort(400, message="Item {} doesn't exist".format(id))
+        # for key, value in data.items():
+        #     setattr(item, key, value)
+        item.update(data)
         db.session.commit()
-        mylog = OpsLog(
-            username=get_jwt_identity(),
-            timestamp = datetime.now(),
-            operation='UPDATE',
-            ops_obj = data.get('name'),
-            request_body = json.dumps(data)
-        )
-        mylog.save()
-        return make_response(jsonify(employee.to_json()), 201)
+        # mylog = OpsLog(
+        #     username=get_jwt_identity(),
+        #     timestamp = datetime.now(),
+        #     operation='UPDATE',
+        #     ops_obj = data.get('name'),
+        #     request_body = json.dumps(data)
+        # )
+        # mylog.save()
+        return make_response({}, 201)
 
-api.add_resource(Employee, '/employees/<id>')
+api.add_resource(Item, '/items/<id>')
 
 class SignUp(Resource):
     def post(self):
