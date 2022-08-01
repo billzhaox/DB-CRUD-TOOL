@@ -14,10 +14,10 @@ export const ItemsPage = () => {
   const location = useLocation();
 
   let [items, setItems] = useState([]);
+  let [fields, setFields] = useState([]);
 
   const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
 
-  var fields = ['name', 'email', 'department'];
   let [thisObj, setThisObj] = useState({});
 
   const handleSubmit = async (e) => {
@@ -31,7 +31,6 @@ export const ItemsPage = () => {
         },
         body: JSON.stringify(thisObj)
       });
-      await res.json();
     } else {
       const res = await fetch(`${API}/items/${id}`, {
         method: "PUT",
@@ -96,18 +95,8 @@ export const ItemsPage = () => {
   };
 
   useEffect(() => {
-    // console.log(location.state.dbs);
-    const requestOptions={
-      method:"POST",
-      headers:{
-          'content-type':'application/json'
-      },
-      body:JSON.stringify(location.state.dbs)
-    };
-    
-    fetch(`${API}/dbset`,requestOptions)
-    .then(res=>res.json())
-    .then(rdata=>{getItems()});
+    setFields(location.state.columns);
+    getItems();
   }, []);
 
   return (
@@ -139,18 +128,14 @@ export const ItemsPage = () => {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Department</th>
+              {fields.map((field) => (<th>{field}</th>))}
               <th>Operations</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => (
               <tr key={item.id}>
-                <td>{item.name}</td>
-                <td>{item.email}</td>
-                <td>{item.department}</td>
+                {fields.map((field) => (<td>{item[field]}</td>))}
                 <td>
                   <button
                     className="btn btn-secondary btn-sm btn-block"

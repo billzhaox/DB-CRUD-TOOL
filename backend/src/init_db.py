@@ -73,18 +73,20 @@ if __name__ == '__main__':
     # new_t = myTable(name='New Product', email='50@abc.com', department='1000')
     # db.session.add(new_t)
     # db.session.commit()
-    results = db.session.query(myTable).all()
-    for r in results:
-        print(r.name)
+    # results = db.session.query(myTable).all()
+    # for r in results:
+    #     print(r.name)
 
-    # class myTable(Base, db.Model):
-    #     __tablename__ = 'employee'
 
 
     # employees = myTable.query.all()
     # for r in employees:
     #    print(r.email)
-    for x in Base.classes:
-        print(x)
-    print(Base.classes['employee'])
+    # for x in Base.classes:
+    #     print(x.__tablename__)
+    # print(Base.classes['employee'])
+    # tables = sorted(Base.classes.keys())
+    # print(tables)
+    tb = Base.classes['employee']
+    print(tb.__table__.columns.keys())
 

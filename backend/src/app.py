@@ -21,7 +21,6 @@ app.config["JWT_SECRET_KEY"] = b'\xfd(0\xec0e\xcd`\x94~\x17\xdb<m\x98\xca'
 # Database
 db = SQLAlchemy(app)
 JWTManager(app)
-myTable = "nones"
 
 def as_dict(obj):
     data = obj.__dict__
@@ -43,15 +42,32 @@ class DBSet(Resource):
             abort(404)
         global app
         app.config['SQLALCHEMY_DATABASE_URI'] = data.get('uri')
-        global myTable
+        global Base
         Base = automap_base()
         Base.prepare(db.engine, reflect=True)
-        myTable = Base.classes[data.get('table_name')]
-        myTable.as_dict = as_dict
+        tables = sorted(Base.classes.keys())
         # set_uri(data.get('uri'),data.get('table_name'))
-        return 201
+        return make_response(jsonify(tables), 201)
 
 api.add_resource(DBSet, '/dbset')
+
+class TableSet(Resource):
+
+    def post(self):
+        data = request.get_json()
+        print(data)
+        if not data:
+            abort(404)
+        global myTable
+        myTable = Base.classes[data.get('table_name')]
+        myTable.as_dict = as_dict
+        columns = myTable.__table__.columns.keys()
+
+        return make_response(jsonify(columns), 201)
+
+api.add_resource(TableSet, '/tbset')
+
+
 
 # shows the list of all employees, and lets you POST to add new employees
 class ItemsList(Resource):
