@@ -107,7 +107,7 @@ export const ItemsPage = () => {
             <>
               <Form.Group>
                 <Form.Control
-                  type="text"
+                  type= {field == "timestamp" ? "time" : "text"}
                   onChange={(e) => setThisObj({
                     ...thisObj,
                     [field]: e.target.value
