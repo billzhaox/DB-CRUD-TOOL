@@ -30,11 +30,13 @@ export const OpsLog = () => {
       <div className="col">
         <table className="table table-striped">
           <thead>
-            <tr>
+            <tr style={{fontWeight: 'bold'}}>
               <th>User Name</th>
               <th>Timestamp</th>
+              <th>Database</th>
+              <th>Table Name</th>
               <th>Operation</th>
-              <th>Operation Object</th>
+              <th>Operation Object ID</th>
               <th>Request Body</th>
             </tr>
           </thead>
@@ -43,8 +45,10 @@ export const OpsLog = () => {
               <tr key={alog.id}>
                 <td>{alog.username}</td>
                 <td>{alog.timestamp}</td>
+                <td>{alog.db_uri}</td>
+                <td>{alog.tb_name}</td>
                 <td>{alog.operation}</td>
-                <td>{alog.ops_obj}</td>
+                <td>{alog.ops_obj_id}</td>
                 <td>{alog.request_body}</td>
               </tr>
             ))}
