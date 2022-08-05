@@ -6,7 +6,7 @@
 
 #### &sect; [项目简介](#intro)
   * [简介](#summary)
-  * [功能列表](#features)
+  * [功能及实现](#features)
 
 #### &sect; [快速开始](#getting-started)
   * [安装](#installation)
@@ -15,13 +15,11 @@
 #### &sect; [技术栈](#tech)
   * [前端](#frontend)
   * [后端](#backend)
-  * [数据库](#database)
 
 #### &sect; [项目架构](#architecture)
   * [MVC三层架构](#layers)
   * [目录结构](#tree)
-  
-#### &sect; [测试](#testing)  
+   
 #### &sect; [部署](#deployment)
 #### &sect; [参考](#reference)
 
@@ -29,15 +27,45 @@
 
 ## <a name="intro">&sect; 项目简介</a>
 
-### <a name="features">⊙ 简介</a> 
-本项目是一个基于Flask + React搭建的数据库CRUD工具，项目采用MVC三层架构，功能完整，可支持多种数据库，并已部署至Heroku。用户输入数据库配置信息后，可选择相应数据表和字段进行前端显示和增/删/改/查操作；此外，项目还实现了登录注册、查看系统操作日志、用户权限管理等功能。
+### <a name="summary">⊙ 简介</a> 
+本项目是一个基于Flask + React搭建的数据库CRUD工具，项目采用前后端分离的架构，符合MVC模式，功能完整，可支持多种数据库，并已部署至Heroku。用户输入数据库配置信息后，可选择相应数据表和字段进行前端显示和增/删/改/查操作；此外，项目还实现了登录注册、查看系统操作日志、用户权限管理等功能。
 
-### <a name="features">⊙ 功能列表</a> 
+### <a name="features">⊙ 功能及实现</a> 
 * 自动获取数据库中所有数据表及其字段信息，并配置前端显示的字段
+> 利用Sqlalchemy中的Automap实现自动映射数据库中已经有的表和字段信息(MetaData)
 * 对选定数据表中记录的增/删/改/查操作
+> 基于flask_restful建立REST APIs，利用flask_sqlalchemy提供的数据库操纵能力来实现增/删/改/查操作
 * 用户注册/登录/登出
+> 前端登录注册的表单构建：React Hook Form
+> 
+> 前端用户登录状态和Token管理：React Token Auth
+> 
+> 后端Token校验：flask_jwt_extended
+>
+>Token验证流程：  ![](./auth.png)
 * 系统操作日志
+> 在增/删/改操作的后端接口中将当前操作信息插入至操作日志表，并在前端配置查看操作日志的页面
 * 用户权限管理 
+> 两种角色：用户和管理员； 两种权限：增/删/改/查 和 管理员权限
+> 
+> 用户可拥有增/删/改/查权限，默认用户仅拥有查看权限；管理员可为用户分配权限，或为用户赋予管理员权限
+> 
+> 为每种权限设置独立的权限位，校验时利用位与计算，即可实现仅通过一个权限字段来控制多种权限
+> 
+> 权限位设计：  
+> 
+> |  操作   | 权限位  |
+> |  ----  | ----  |
+> | 查  | 0b00000001 (0x01) |
+> | 增  | 0b00000010 (0x02) |
+> | 改  | 0b00000100 (0x04) |
+> | 删  | 0b00001000 (0x08) |
+> | 管理  | 0b10000000 (0x80) |
+>
+> 操作的权限使用 8 位表示，现在使用了其中5位，其余3位可用于将来的扩充
+
+
+
 
 ***
 
@@ -70,6 +98,7 @@
 * flask_jwt_extended Server端Token校验
 * flask_sqlalchemy & Sqlalchemy 数据库交互
 * werkzeug.security 密码加密及校验
+* gunicorn  Python WSGI Server
 
 ***
 
@@ -85,15 +114,16 @@
 .
 │  package-lock.json
 │  README.md
-│  screenshot.png
 │
 ├─backend 
 │  │─src
 │      │  app.py      //Controller
 │      │  models.py   //Model
-│      │  myweb.db
-│      │  settings.py
+│      │  myweb.db    //项目数据库
+│      │  ano.db      //用户自定义数据库，测试用
+│      │  settings.py  //app配置，公共组件
 │  │   requirements.txt
+│  │   Profile       //gunicorn配置
 │              
 ├─frontend            //View
 │  │─node_modules 
@@ -109,12 +139,14 @@
 │      │   serviceWorker.js
 │      │   setupTests.js
 │      │
-│      │-components
+│      │-components     //页面组件
 │           │   About.js
-│           │   Employee.js
+│           │   Dbsetting.js
+│           │   Items.js
 │           │   Login.js
 │           │   Navbar.js
 │           │   OpsLog.js
+│           │   Permission.js
 │           │   SignUp.js
 │  │   .env
 │  │   .gitignore
@@ -126,8 +158,9 @@
 ***
 
 ## <a name="deployment">&sect; 部署</a>
-在`frontend`目录下： 执行 `npm run build`，将会在该目录下生成 `build/`  
+在`frontend`目录下： 执行 `npm run build`，将会在该目录下生成 `build/`文件夹  
 > 在本地使用命令行静态资源服务器[serve](https://github.com/tj/serve) ( `npm i serve -g` )运行build 后的项目：执行 `serve -s build`
+> 
 > 生产环境下的部署：本项目部署至Heroku，可参考[Heroku with Git](https://devcenter.heroku.com/articles/git#create-a-heroku-remote)
 
 ***
@@ -144,18 +177,3 @@
 * [项目参考-DB Graph](https://github.com/bbelderbos/sa-graph)
 * [Heroku with Git](https://devcenter.heroku.com/articles/git#create-a-heroku-remote)
 * [Heroku部署Flask+React项目](https://www.youtube.com/watch?v=h96KP3JMX7Q)
-
-
-
-
-角色及其权限设计：  
-
-|  角色   | 权限  |
-|  ----  | ----  |
-| 普通员工  | 查 |
-| 管理员  | 增/删/改/查 |
-| 超级管理员  | 增/删/改/查 + 查看操作日志 |
-
-Token验证流程：  
-
-![](./auth.png)
