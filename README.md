@@ -1,10 +1,12 @@
-# 基于Python Flask, React和SQLite的员工管理系统
+# 基于Flask + React的数据库CRUD工具
 
 ![](./screenshot.png)
 
 ## 目录
 
-#### &sect; [功能](#features)
+#### &sect; [项目简介](#intro)
+  * [简介](#summary)
+  * [功能列表](#features)
 
 #### &sect; [快速开始](#getting-started)
   * [安装](#installation)
@@ -25,23 +27,17 @@
 
 ****
 
-## <a name="features">&sect; 功能</a> 
-* 对Employee表中记录的增/删/改/查操作
+## <a name="intro">&sect; 项目简介</a>
+
+### <a name="features">⊙ 简介</a> 
+本项目是一个基于Flask + React搭建的数据库CRUD工具，项目采用MVC三层架构，功能完整，可支持多种数据库，并已部署至Heroku。用户输入数据库配置信息后，可选择相应数据表和字段进行前端显示和增/删/改/查操作；此外，项目还实现了登录注册、查看系统操作日志、用户权限管理等功能。
+
+### <a name="features">⊙ 功能列表</a> 
+* 自动获取数据库中所有数据表及其字段信息，并配置前端显示的字段
+* 对选定数据表中记录的增/删/改/查操作
 * 用户注册/登录/登出
 * 系统操作日志
-* 用户权限管理 (Ongoing)  
-
-角色及其权限设计：  
-
-|  角色   | 权限  |
-|  ----  | ----  |
-| 普通员工  | 查 |
-| 管理员  | 增/删/改/查 |
-| 超级管理员  | 增/删/改/查 + 查看操作日志 |
-
-Token验证流程：  
-
-![](./auth.png)
+* 用户权限管理 
 
 ***
 
@@ -63,7 +59,7 @@ Token验证流程：
 
 ### <a name="frontend">⊙ 前端</a>  
 * React 18.2.0 前端开发框架
-* React Bootstrap UI库
+* React Bootstrap UI组件库
 * React Router 响应式路由
 * React Hook Form 表单验证库
 * React Token Auth 登录验证库(Token)
@@ -72,11 +68,8 @@ Token验证流程：
 * Python Flask 后端开发框架
 * flask_restful 建立REST APIs
 * flask_jwt_extended Server端Token校验
-* flask_sqlalchemy 数据库交互
+* flask_sqlalchemy & Sqlalchemy 数据库交互
 * werkzeug.security 密码加密及校验
-
-### <a name="database">⊙ 数据库</a>
-* SQLite3
 
 ***
 
@@ -132,15 +125,37 @@ Token验证流程：
 
 ***
 
-## <a name="testing">&sect; 测试</a>
-* To be updated  
-
-***
-
 ## <a name="deployment">&sect; 部署</a>
-* To be updated  
+在`frontend`目录下： 执行 `npm run build`，将会在该目录下生成 `build/`  
+> 在本地使用命令行静态资源服务器[serve](https://github.com/tj/serve) ( `npm i serve -g` )运行build 后的项目：执行 `serve -s build`
+> 生产环境下的部署：本项目部署至Heroku，可参考[Heroku with Git](https://devcenter.heroku.com/articles/git#create-a-heroku-remote)
 
 ***
 
 ## <a name="reference">&sect; 参考</a>
-* To be updated
+* [react文档](http://reactjs.cn/react/docs/getting-started-zh-CN.html)
+* [react-bootstrap组件文档](https://react-bootstrap.github.io/layout/breakpoints/)
+* [React Hook Form表单验证](https://react-hook-form.com/get-started)
+* [React Token Auth (v2) 前端登录验证](https://github.com/obabichev/react-token-auth)
+* [flask_restful文档](https://flask-restful.readthedocs.io/en/latest/quickstart.html)
+* [flask_jwt_extended 后端登录验证](https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage/)
+* [Sqlalchemy Automap 自动映射数据库metadata](https://docs.sqlalchemy.org/en/14/orm/extensions/automap.html?highlight=automap#sqlalchemy.ext.automap.AutomapBase)
+* [JWT登录校验](https://www.youtube.com/watch?v=GXVvBU_Vynk&list=PLEt8Tae2spYkfEYQnKxQ4vrOULAnMI1iF&index=2)
+* [项目参考-DB Graph](https://github.com/bbelderbos/sa-graph)
+* [Heroku with Git](https://devcenter.heroku.com/articles/git#create-a-heroku-remote)
+* [Heroku部署Flask+React项目](https://www.youtube.com/watch?v=h96KP3JMX7Q)
+
+
+
+
+角色及其权限设计：  
+
+|  角色   | 权限  |
+|  ----  | ----  |
+| 普通员工  | 查 |
+| 管理员  | 增/删/改/查 |
+| 超级管理员  | 增/删/改/查 + 查看操作日志 |
+
+Token验证流程：  
+
+![](./auth.png)
