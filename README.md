@@ -1,6 +1,6 @@
 # 基于Flask + React的数据库CRUD工具
 
-![](./screenshot.png)
+![](./screenshots/CRUD.png)
 
 ## 目录
 
@@ -21,6 +21,9 @@
   * [目录结构](#tree)
    
 #### &sect; [部署](#deployment)
+
+#### &sect; [运行截图](#screenshots)
+
 #### &sect; [参考](#reference)
 
 ****
@@ -162,6 +165,28 @@
 > 在本地使用命令行静态资源服务器[serve](https://github.com/tj/serve) ( `npm i serve -g` )运行build 后的项目：执行 `serve -s build`
 > 
 > 生产环境下的部署：本项目部署至Heroku，可参考[Heroku with Git](https://devcenter.heroku.com/articles/git#create-a-heroku-remote)
+
+***
+
+## <a name="screenshots">&sect; 运行截图</a>
+
+* 注册 
+![](./screenshots/signup.png)
+
+* 登录
+![](./screenshots/login.png)
+
+* 配置数据库信息
+![](./screenshots/dbsetting.png)
+
+* 增删改查页面
+![](./screenshots/CRUD.png)
+
+* 系统操作日志 
+![](./screenshots/opslog.png)
+
+* 用户权限控制 
+![](./screenshots/permissions.png)
 
 ***
 
