@@ -2,6 +2,8 @@
 
 ![](./screenshots/CRUD.png)
 
+<b>Github</b>: https://github.com/billzhaox/DB-CRUD-TOOL
+
 ## 目录
 
 #### &sect; [项目简介](#intro)
