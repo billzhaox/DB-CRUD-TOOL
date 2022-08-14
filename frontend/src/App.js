@@ -9,18 +9,20 @@ import { SignUpPage } from "./components/SignUp";
 import { OpsLog } from "./components/OpsLog";
 import { DBForm } from "./components/Dbsetting";
 
-
 function App() {
+  const [showIt, setShowIt] = React.useState(false);
+  const [columns, setColumns] = React.useState([]);
+
   return (
     <Router>
-      <Navbar />
+      <Navbar showIt={showIt} columns={columns}/>
       <div className="container p-4">
         <Routes>
           <Route path="/perms" element={<Permission/>} />
           <Route path="/login" element={<LoginPage/>} />
           <Route path="/signup" element={<SignUpPage/>} />
           <Route path="/it" element={<ItemsPage/>} />
-          <Route path="/" element={<DBForm/>} />
+          <Route path="/" element={<DBForm showItChange={setShowIt} columnsChange={setColumns}/>} />
           <Route path="/opslog" element={<OpsLog/>} />
         </Routes>
       </div>

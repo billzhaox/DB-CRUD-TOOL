@@ -1,8 +1,10 @@
 # 基于Flask + React的数据库CRUD工具
 
-![](./screenshots/CRUD.png)
-
+赵誉雄  2022.07  
+实习课题：基于Web的数据库操作  
 <b>Github</b>: https://github.com/billzhaox/DB-CRUD-TOOL
+
+![](./screenshots/CRUD.png)
 
 ## 目录
 

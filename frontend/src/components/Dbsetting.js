@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import {useForm} from 'react-hook-form'
+import React, { useState } from 'react'
 import {useNavigate} from 'react-router-dom'
-import {Form, Button, Dropdown} from 'react-bootstrap'
+import {Form, Button, Dropdown, Alert} from 'react-bootstrap'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 const API = process.env.REACT_APP_API;
 
-export const DBForm=()=>{
-
-    const {register,handleSubmit}=useForm()
+export const DBForm = ({showItChange, columnsChange}) => {
     
     const [uri, setUri] = useState("");
     const [tablelist, setTablelist] = useState([]);
@@ -20,10 +17,11 @@ export const DBForm=()=>{
     const [showColumnList, setShowColumnList] = useState(false);
 
     const [curTable, setCurTable] = useState("Table Name");
-    
-    
 
-    const navigate = useNavigate()
+    const [showError, setShowError] = useState(false);
+    const [errorContent, setErrorContent] = useState("");
+
+    const navigate = useNavigate();
 
     const connectDB = async (e) => {
         e.preventDefault();
@@ -39,8 +37,13 @@ export const DBForm=()=>{
             }),
           });
         const data = await res.json();
-        setTablelist(data);
-        setShowtablelist(true);
+        if (res.ok) {
+            setTablelist(data);
+            setShowtablelist(true);
+        } else {
+            setErrorContent(`ERROR ${res.status}:  ${data.message}`);
+            setShowError(true);
+        }
     }
 
     const handleSelectTable = async (e) => {
@@ -56,9 +59,13 @@ export const DBForm=()=>{
             }),
         });
         const data = await res.json();
-        setColumns(data);
-        setShowColumnList(true);
-        // navigate('/it',{state:{columns:data}});
+        if (res.ok) {
+            setColumns(data);
+            setShowColumnList(true);
+        } else {
+            setErrorContent(`ERROR ${res.status}:  ${data.message}`);
+            setShowError(true);
+        }
     }
 
     const toggleHandler = (column, index) => () => {
@@ -73,12 +80,19 @@ export const DBForm=()=>{
             return e !== null;
         }); 
         // console.log(arr);
+        showItChange(true);
+        columnsChange(arr);
         navigate('/it',{state:{columns:arr}});
     }
 
     return(
         <div className="container">
-            <div className="form">
+            <div>
+                { showError &&
+                    <Alert variant="danger" onClose={() => setShowError(false)} dismissible>
+                        <p>{errorContent}</p>
+                    </Alert>
+                }
                 <h1>Database Setting</h1>
                 <br></br>
                 <Form>

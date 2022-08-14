@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Form,Button} from 'react-bootstrap'
+import {Form, Button, Alert} from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import {useForm} from 'react-hook-form'
 import { login } from '../auth'
@@ -7,16 +7,17 @@ import {useNavigate} from 'react-router-dom'
 
 const API = process.env.REACT_APP_API;
 
-export const LoginPage=()=>{
+export const LoginPage = () => {
     
-    const {register,handleSubmit,reset,formState:{errors}}=useForm()
+    const {register,handleSubmit,reset,formState:{errors}}=useForm();
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
+    const [showError, setShowError] = useState(false);
+    const [errorContent, setErrorContent] = useState("");
     
-
-
-    const loginUser=(data)=>{
-       console.log(data)
+    const loginUser = async (data) => {
+    // console.log(data)
 
        const requestOptions={
            method:"POST",
@@ -24,30 +25,28 @@ export const LoginPage=()=>{
                'content-type':'application/json'
            },
            body:JSON.stringify(data)
-       }
+       };
         
-       fetch(`${API}/login`,requestOptions)
-       .then(res=>res.json())
-       .then(rdata=>{
-           console.log(rdata)
-           
-           if (rdata){
-            login(rdata.access_token)
-            console.log(data.username) 
-            navigate('/',{state:{uname:data.username}})
-           }
-           else{
-               alert('Invalid username or password')
-           }
-
-       })
-
-       reset()
+       const res = await fetch(`${API}/login`,requestOptions);
+       const rdata = await res.json();
+       if (res.ok) {
+            login(rdata.access_token);
+            reset();
+            navigate('/',{state:{uname:data.username}});
+       } else {
+            setErrorContent(`ERROR ${res.status}:  ${rdata.message}`);
+            setShowError(true);
+       }
     }
 
     return(
         <div className="container">
         <div className="form">
+            { showError &&
+                <Alert variant="danger" onClose={() => setShowError(false)} dismissible>
+                    <p>{errorContent}</p>
+                </Alert>
+            }
             <h1>Login Page</h1>
             <form>
                 <Form.Group>
@@ -58,7 +57,7 @@ export const LoginPage=()=>{
                     />
                 </Form.Group>
                 {errors.username && <p style={{color:'red'}}><small>Username is required</small></p>}
-                {errors.username?.type === "maxLength" && <p style={{color:'red'}}><small>Username should be 25 characters</small></p>}
+                {errors.username?.type === "maxLength" && <p style={{color:'red'}}><small>Max characters should be 25</small></p>}
                 <br></br>
                
                 <Form.Group>
@@ -67,11 +66,11 @@ export const LoginPage=()=>{
                         placeholder="Your password"
                         {...register('password',{required:true,minLength:8})}
                     />
+                    {errors.username && <p style={{color:'red'}}><small>Password is required</small></p>}
+                    {errors.password?.type === "minLength" && <p style={{color:'red'}}>
+                        <small>Password should be more than 8 characters</small>
+                        </p>}
                 </Form.Group>
-                {errors.username && <p style={{color:'red'}}><small>Password is required</small></p>}
-                {errors.password?.type === "maxLength" && <p style={{color:'red'}}>
-                    <small>Password should be more than 8 characters</small>
-                    </p>}
                 <br></br>
                 <Form.Group>
                     <Button as="sub" variant="primary" onClick={handleSubmit(loginUser)}>Login</Button>

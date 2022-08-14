@@ -12,12 +12,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from sqlalchemy.ext.automap import automap_base
 
+# obj to dict
 def as_dict(obj):
     data = obj.__dict__
     # print("dict ", data)
     data.pop('_sa_instance_state', None)
     return data
 
+# check if current user has certain kind of permission
 def check_perms(perm):
     cur_user = Users.query.filter_by(username=get_jwt_identity()).first()
     return cur_user.has_permission(perm)
@@ -31,6 +33,7 @@ def check_perms(perm):
 # Settings
 CORS(app, resources=r'/*', supports_credentials=True)
 
+
 class Perms:
     READ=0x01
     CREATE=0x02
@@ -40,13 +43,13 @@ class Perms:
 
 # Routes
 
+# connect to database by uri
 class DBSet(Resource):
-
     def post(self):
         data = request.get_json()
         # print(data)
         if not data:
-            abort(404)
+            abort(400, "The request json is none")
         app.config['SQLALCHEMY_BINDS'] = {'customDB' : data.get('uri')}
         global Base
         Base = automap_base()
@@ -54,19 +57,24 @@ class DBSet(Resource):
         global sess
         sess = db.create_scoped_session(options={'bind': db.get_engine(app, 'customDB')})
         sess.expire_on_commit = False
+        try:
+            # sess.query("1").from_statement(text("SELECT 1")).all() # mysql?
+            sess.execute('SELECT 1')
+        except:
+            abort(404, "Connection Failed")
         tables = sorted(Base.classes.keys())
         # set_uri(data.get('uri'),data.get('table_name'))
-        return make_response(jsonify(tables), 201)
+        return jsonify(tables)
 
 api.add_resource(DBSet, '/dbset')
 
+# get columns list of the chosen table
 class TableSet(Resource):
-
     def post(self):
         data = request.get_json()
         print(data)
         if not data:
-            abort(404)
+            abort(400, "The request json is none")
         global myTable
         myTable = Base.classes[data.get('table_name')]
         myTable.as_dict = as_dict
@@ -74,11 +82,10 @@ class TableSet(Resource):
         dt_list = []
         for c in myTable.__table__.columns:
             dt_list.append({"c_name":str(c.name),"c_type":str(c.type)})
-        print(dt_list)
-        return make_response(jsonify(dt_list), 201)
+        # print(dt_list)
+        return jsonify(dt_list)
 
 api.add_resource(TableSet, '/tbset')
-
 
 
 # shows the list of all employees, and lets you POST to add new employees
@@ -94,10 +101,10 @@ class ItemsList(Resource):
     def post(self):
         data = request.get_json()
         if not data:
-            abort(404)
+            abort(400, "The request json is none")
         print(data)
         if not check_perms(Perms.CREATE):
-            abort(403)
+            abort(403, "CREATE permission are required to perform this operation")
         new_item = myTable(**data)
         sess.add(new_item)
         sess.flush()
@@ -114,8 +121,7 @@ class ItemsList(Resource):
         )
         mylog.save()
 
-        
-        return make_response({}, 201)
+        return jsonify({"message":"Item Added"})
 
 api.add_resource(ItemsList, '/items')
 
@@ -125,16 +131,16 @@ class Item(Resource):
     def get(self, id):
         item = sess.query(myTable).get(id)
         if item is None:
-            abort(400, message="Item {} doesn't exist".format(id))
+            abort(400, "Item {} doesn't exist".format(id))
         return jsonify(item.as_dict())
 
     @jwt_required()
     def delete(self, id):
         item = sess.query(myTable).get(id)
         if item is None:
-            abort(400, message="Item {} doesn't exist".format(id))
+            abort(400, "Item {} doesn't exist".format(id))
         if not check_perms(Perms.DELETE):
-            abort(403)
+            abort(403, "DELETE permission are required to perform this operation")
         sess.delete(item)
         sess.commit()
         mylog = OpsLog(
@@ -146,19 +152,19 @@ class Item(Resource):
             ops_obj_id = id
         )
         mylog.save()
-        return make_response(jsonify({'message': 'Item Deleted'}), 204)
+        return jsonify({'message': 'Item Deleted'})
 
     @jwt_required()
     def put(self, id):
         data = request.get_json()
         if not data:
-            abort(404)
+            abort(400, "The request json is none")
         print("data: ", data)
         if not check_perms(Perms.UPDATE):
-            abort(403)
+            abort(403, "UPDATE permission are required to perform this operation")
         item = sess.query(myTable).filter(myTable.id==id)
         if item is None:
-            abort(400, message="Item {} doesn't exist".format(id))
+            abort(400, "Item {} doesn't exist".format(id))
         # for key, value in data.items():
         #     setattr(item, key, value)
         item.update(data)
@@ -173,7 +179,7 @@ class Item(Resource):
             request_body = json.dumps(data)
         )
         mylog.save()
-        return make_response({}, 201)
+        return jsonify({"message":"Item Updated"})
 
 api.add_resource(Item, '/items/<id>')
 
@@ -181,7 +187,7 @@ class SignUp(Resource):
     def post(self):
         data = request.get_json()
         if not data:
-          abort(404)
+          abort(400, "The request json is none")
         username=data.get('username')
         db_user=Users.query.filter_by(username=username).first()
         if db_user is not None:
@@ -193,15 +199,15 @@ class SignUp(Resource):
             permission=0x01
         )
         new_user.save()
-        return make_response(jsonify({"message":"User created successfuly"}),201)
+        return jsonify({"message":"User created successfuly"})
 
 api.add_resource(SignUp, '/signup')
 
 class Login(Resource):
     def post(self):
-        data=request.get_json()
+        data = request.get_json()
         if not data:
-          abort(404)
+          abort(400, "The request json is none")
         username=data.get('username')
         password=data.get('password')
         db_user=Users.query.filter_by(username=username).first()
@@ -210,7 +216,7 @@ class Login(Resource):
             refresh_token=create_refresh_token(identity=db_user.username)
             return jsonify({"access_token":access_token,"refresh_token":refresh_token})
         else:
-            return jsonify({"message":"Invalid username or password"})
+            abort(401, "Invalid username or password")
 
 api.add_resource(Login, '/login')
 
@@ -220,7 +226,7 @@ class Refresh(Resource):
         current_user=get_jwt_identity()
         # print(current_user)
         new_access_token=create_access_token(identity=current_user)
-        return make_response(jsonify({"access_token":new_access_token}),200)
+        return jsonify({"access_token":new_access_token})
 
 api.add_resource(Refresh, '/refresh')
 
@@ -230,7 +236,7 @@ class GetUser(Resource):
     def get(self):
         current_user=get_jwt_identity()
         # print(current_user)
-        return make_response(jsonify({"uname":current_user}),200)
+        return jsonify({"uname":current_user})
 
 api.add_resource(GetUser, '/getUser')
 
@@ -238,7 +244,7 @@ api.add_resource(GetUser, '/getUser')
 class LogsList(Resource):
     @jwt_required()
     def get(self):
-        logs = OpsLog.query.all()
+        logs = OpsLog.query.order_by(OpsLog.timestamp.desc()).all()
         return jsonify([log.to_json() for log in logs])
 
 api.add_resource(LogsList, '/logs')
@@ -252,5 +258,25 @@ class UsersList(Resource):
 
 api.add_resource(UsersList, '/users')
 
+# update the permission of an user
+class Permission(Resource):
+    @jwt_required()
+    def put(self, id):
+        data = request.get_json()
+        if not data:
+            abort(400, "The request json is none")
+        print(data)
+        if not check_perms(Perms.ADMIN):
+            abort(403, "ADMIN permission are required to perform this operation")
+        target_user = db_user=Users.query.filter_by(id=id).first()
+        if target_user is None:
+            abort(400, "User {} doesn't exist".format(id))
+        target_user.permission = data.get('permission')
+        db.session.commit()
+        return jsonify({"message":"permission updated"})
+
+api.add_resource(Permission, '/perms/<id>')
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run()

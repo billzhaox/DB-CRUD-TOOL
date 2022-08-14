@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
-import {useLocation} from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import Alert from 'react-bootstrap/Alert';
 
 const API = process.env.REACT_APP_API;
 
 export const OpsLog = () => {
 
   let [logs, setLogs] = useState([]);
+
+  const [showError, setShowError] = useState(false);
+  const [errorContent, setErrorContent] = useState("");
 
   const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
 
@@ -18,7 +21,12 @@ export const OpsLog = () => {
       }
     });
     const data = await res.json();
-    setLogs(data);
+    if (res.ok) {
+      setLogs(data);
+    } else {
+      setErrorContent(`ERROR ${res.status}:  ${data.message}`);
+      setShowError(true);
+    }
   };
 
   useEffect(() => {
@@ -26,6 +34,12 @@ export const OpsLog = () => {
   }, []);
 
   return (
+    <>
+    { showError &&
+      <Alert variant="danger" onClose={() => setShowError(false)} dismissible>
+        <p>{errorContent}</p>
+      </Alert>
+    }
     <div className="row">
       <div className="col">
         <table className="table table-striped">
@@ -56,5 +70,6 @@ export const OpsLog = () => {
         </table>
       </div>
     </div>
+    </>
   );
 };

@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {useLocation} from 'react-router-dom';
-import {Form,Button} from 'react-bootstrap'
+import {Form, Button} from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
 
 const API = process.env.REACT_APP_API;
 
 export const ItemsPage = () => {
   const [id, setId] = useState("");
 
-  const [editing, setEditing] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertContent, setAlertContent] = useState("");
+  const [alertVariant, setAlertVariant] = useState("");
 
-  const nameInput = useRef(null);
+  const [editing, setEditing] = useState(false);
 
   const location = useLocation();
 
@@ -31,6 +34,18 @@ export const ItemsPage = () => {
         },
         body: JSON.stringify(thisObj)
       });
+      const data = await res.json();
+      if (res.ok) {
+        setShowAlert(false);
+        setAlertContent("Successfully Added!");
+        setAlertVariant("info");
+        setShowAlert(true);
+      } else {
+        setShowAlert(false);
+        setAlertContent(`ERROR ${res.status}:  ${data.message}`);
+        setAlertVariant("danger");
+        setShowAlert(true);
+      }
     } else {
       const res = await fetch(`${API}/items/${id}`, {
         method: "PUT",
@@ -41,9 +56,20 @@ export const ItemsPage = () => {
         body: JSON.stringify(thisObj)
       });
       const data = await res.json();
-      // console.log(data);
-      setEditing(false);
-      setId("");
+      if (res.ok) {
+        setEditing(false);
+        setId("");
+        setShowAlert(false);
+        setAlertContent("Successfully Updated!");
+        setAlertVariant("info");
+        setShowAlert(true);
+      } else {
+        setShowAlert(false);
+        setAlertContent(`ERROR ${res.status}:  ${data.message}`);
+        setAlertVariant("danger");
+        setShowAlert(true);
+      }
+      
     }
 
     await getItems();
@@ -73,7 +99,19 @@ export const ItemsPage = () => {
           'Authorization': `Bearer ${JSON.parse(token)}`
         }
       });
-      await getItems();
+      const data = await res.json();
+      if (res.ok) {
+        await getItems();
+        setShowAlert(false);
+        setAlertContent("Successfully Deleted!");
+        setAlertVariant("info");
+        setShowAlert(true);
+      } else {
+        setShowAlert(false);
+        setAlertContent(`ERROR ${res.status}:  ${data.message}`);
+        setAlertVariant("danger");
+        setShowAlert(true);
+      }
     }
   };
 
@@ -86,28 +124,35 @@ export const ItemsPage = () => {
       }
     });
     const data = await res.json();
-
-    setEditing(true);
-    setId(id);
-
-    // console.log(data)
-
-    // Reset
-    var newObj = {};
-    fields.forEach((field) => newObj[field.c_name] = data[field.c_name]);
-    setThisObj(newObj);
-
-
-    // nameInput.current.focus();
+    if (res.ok) {
+      setEditing(true);
+      setId(id);
+      // Reset
+      var newObj = {};
+      fields.forEach((field) => newObj[field.c_name] = data[field.c_name]);
+      setThisObj(newObj);
+    } else {
+      setShowAlert(false);
+      setAlertContent(`ERROR ${res.status}:  ${data.message}`);
+      setAlertVariant("danger");
+      setShowAlert(true);
+    }
   };
 
   useEffect(() => {
-    setFields(location.state.columns);
-    // console.log(location.state.columns);
+    if (location.state.hasOwnProperty("columns")){
+      setFields(location.state.columns);
+    }
     getItems();
   }, []);
 
   return (
+    <>
+    { showAlert &&
+        <Alert variant={alertVariant} onClose={() => setShowAlert(false)} dismissible>
+          <p>{alertContent}</p>
+        </Alert>
+    }
     <div className="row">
       <div className="col-md-4">
         <form className="card card-body">
@@ -164,5 +209,6 @@ export const ItemsPage = () => {
         </table>
       </div>
     </div>
+    </>
   );
 };

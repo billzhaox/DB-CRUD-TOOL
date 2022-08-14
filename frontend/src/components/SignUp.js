@@ -7,16 +7,15 @@ const API = process.env.REACT_APP_API;
 
 export const SignUpPage = () => {
 
-
-    const { register, handleSubmit, watch, reset, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const [show,setShow]=useState(false);
     const [serverResponse,setServerResponse]=useState('');
 
-    const submitForm = (data) => {
+    const [showError, setShowError] = useState(false);
+    const [errorContent, setErrorContent] = useState("");
 
-
+    const submitForm = async (data) => {
         if (data.password === data.confirmPassword) {
-
             const requestOptions = {
                 method: "POST",
                 headers: {
@@ -28,54 +27,45 @@ export const SignUpPage = () => {
                   password: data.password})
             };
 
-
-            fetch(`${API}/signup`, requestOptions)
-                .then(res => res.json())
-                .then(data =>{
-                    console.log(data)
-                    setServerResponse(data.message)
-                    setShow(true)
-                })
-                .catch(err => console.log(err))
-            // console.log(data);
-            reset();
+            const res = await fetch(`${API}/signup`, requestOptions);
+            const rdata = await res.json();
+            if (res.ok) {
+                setServerResponse(rdata.message);
+                setShow(true);
+                reset();
+            } else {
+                setShow(false);
+                setErrorContent(`ERROR ${res.status}:  ${rdata.message}`);
+                setShowError(true);
+            }
         }
 
         else {
-            alert("Passwords do not match")
+            setShow(false);
+            setErrorContent("Passwords do not match");
+            setShowError(true);
         }
 
+    };
 
-    }
-
-    // console.log(watch("username"));
-    // console.log(watch("email"));
-    // console.log(watch("password"));
-    // console.log(watch("confirmPassword"));
 
 
     return (
         <div className="container">
             <div className="form">
-
-                
-               {show?
-               <>
+               {show &&
                 <Alert variant="success" onClose={() => {setShow(false)
                 }} dismissible>
-                <p>
-                   {serverResponse}
-                </p>
-                </Alert>
-
-                <h1>Sign Up Page</h1>
-                
-                </>
-                :
-                <h1>Sign Up Page</h1>
-               
+                    <p>{serverResponse}</p>
+                </Alert> 
                }
-                <form>
+               { showError &&
+                <Alert variant="danger" onClose={() => setShowError(false)} dismissible>
+                    <p>{errorContent}</p>
+                </Alert>
+                }
+               <h1>Sign Up Page</h1>
+                <form onSubmit={handleSubmit(submitForm)}>
                     <Form.Group>
                         <Form.Label>Username</Form.Label>
                         <Form.Control type="text"
@@ -121,7 +111,7 @@ export const SignUpPage = () => {
                     </Form.Group>
                     <br></br>
                     <Form.Group>
-                        <Button as="sub" variant="primary" onClick={handleSubmit(submitForm)}>SignUp</Button>
+                        <Button type="submit" variant="primary">SignUp</Button>
                     </Form.Group>
                     <br></br>
                     <Form.Group>
