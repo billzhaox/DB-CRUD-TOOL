@@ -1,7 +1,5 @@
 # 基于Flask + React的数据库CRUD工具
 
-赵誉雄  2022.07  
-实习课题：基于Web的数据库操作  
 <b>Github</b>: https://github.com/billzhaox/DB-CRUD-TOOL
 
 ![](./screenshots/CRUD.png)
@@ -95,6 +93,7 @@
 ### <a name="frontend">⊙ 前端</a>  
 * React 18.2.0 前端开发框架
 * React Bootstrap UI组件库
+* Bootswatch Lux UI主题
 * React Router 响应式路由
 * React Hook Form 表单验证库
 * React Token Auth 登录验证库(Token)
