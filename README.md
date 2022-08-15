@@ -1,6 +1,6 @@
-# 基于Flask + React的数据库CRUD工具
+# 基于Flask + React的数据库CRUD工具  
 
-<b>Github</b>: https://github.com/billzhaox/DB-CRUD-TOOL
+部署地址：https://db-crud-tool123.herokuapp.com/
 
 ![](./screenshots/CRUD.png)
 
