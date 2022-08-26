@@ -193,6 +193,9 @@
 
 ***
 
+ps: 数据表必须有primary key with a unique value
+mysql+pymysql
+
 ## <a name="reference">&sect; 参考</a>
 * [react文档](http://reactjs.cn/react/docs/getting-started-zh-CN.html)
 * [react-bootstrap组件文档](https://react-bootstrap.github.io/layout/breakpoints/)
