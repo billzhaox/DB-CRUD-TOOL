@@ -83,7 +83,13 @@ export const ItemsPage = () => {
   };
 
   const getItems = async () => {
-    const res = await fetch(`${API}/items`);
+    const res = await fetch(`${API}/items`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': `Bearer ${JSON.parse(token)}`
+      }
+    });
     const data = await res.json();
     setItems(data);
     // console.log(data);

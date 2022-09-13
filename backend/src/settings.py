@@ -10,13 +10,12 @@ api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///myweb.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = b'\xfd(0\xec0e\xcd`\x94~\x17\xdb<m\x98\xca'
+app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
+app.config['SQLALCHEMY_BINDS'] = {}
 # Database
 db = SQLAlchemy(app)
 JWTManager(app)
 
-def set_uri(uri, table_name):
-    app.config['SQLALCHEMY_DATABASE_URI'] = uri ## 'sqlite:///myweb.db'
-    Base = automap_base()
-    Base.prepare(db.engine, reflect=True)
-    global myTable
-    myTable = Base.classes[table_name]
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')

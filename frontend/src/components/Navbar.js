@@ -9,6 +9,8 @@ export const Navbar = ({showIt, columns}) => {
   const [logged] = useAuth();
   const [uname, setUname] = useState("");
 
+  const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
+
   useEffect(() => {
     // console.log(logged);
     if(logged){
@@ -37,6 +39,17 @@ export const Navbar = ({showIt, columns}) => {
     }
   }, [logged]);
 
+  const LogThisOut = async () => {
+    const res = await fetch(`${API}/out`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': `Bearer ${JSON.parse(token)}`
+      }
+    });
+    logout();
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <Link className="navbar-brand" to="/"><Tools/>  DB CRUD Tool</Link>
@@ -62,7 +75,7 @@ export const Navbar = ({showIt, columns}) => {
               <a className="nav-link">Hi, {uname}!</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="#" onClick={()=>{logout()}}>Log Out</a>
+              <a className="nav-link active" href="#" onClick={()=>LogThisOut()}>Log Out</a>
             </li>
           </>
           :

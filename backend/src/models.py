@@ -64,8 +64,8 @@ class OpsLog(db.Model):
     db_uri = db.Column(db.Text(), nullable=False)
     tb_name = db.Column(db.Text(), nullable=False)
     operation = db.Column(db.String(25),nullable=False)
-    ops_obj_id = db.Column(db.Integer,nullable=False)
-    request_body = db.Column(db.Text())
+    ops_obj_id = db.Column(db.Integer,nullable=True)
+    request_body = db.Column(db.Text(),nullable=True)
 
     def save(self):
         db.session.add(self)

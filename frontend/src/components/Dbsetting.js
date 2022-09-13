@@ -23,6 +23,8 @@ export const DBForm = ({showItChange, columnsChange}) => {
 
     const navigate = useNavigate();
 
+    const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
+
     const connectDB = async (e) => {
         e.preventDefault();
         // console.log(data);
@@ -30,7 +32,8 @@ export const DBForm = ({showItChange, columnsChange}) => {
         const res = await fetch(`${API}/dbset`, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              'Authorization': `Bearer ${JSON.parse(token)}`
             },
             body: JSON.stringify({
                 uri:uri
@@ -52,7 +55,8 @@ export const DBForm = ({showItChange, columnsChange}) => {
         const res = await fetch(`${API}/tbset`, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              'Authorization': `Bearer ${JSON.parse(token)}`
             },
             body: JSON.stringify({
                 table_name:e

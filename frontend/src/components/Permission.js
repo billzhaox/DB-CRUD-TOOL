@@ -9,6 +9,7 @@ export const Permission = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorContent, setErrorContent] = useState("");
+  
 
   const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
 
@@ -121,14 +122,14 @@ export const Permission = () => {
               <tr key={user.id}>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
-                <td><input checked={(user.permission & 0x01)} onChange={checkboxHandler(user.id, 0x01)} type="checkbox"/></td>
-                <td><input checked={(user.permission & 0x02)} onChange={checkboxHandler(user.id, 0x02)} type="checkbox"/></td>
-                <td><input checked={(user.permission & 0x04)} onChange={checkboxHandler(user.id, 0x04)} type="checkbox"/></td>
-                <td><input checked={(user.permission & 0x08)} onChange={checkboxHandler(user.id, 0x08)} type="checkbox"/></td>
-                <td><input checked={(user.permission & 0x80)} onChange={checkboxHandler(user.id, 0x80)} type="checkbox"/></td>
+                <td><input className="form-check-input" checked={(user.permission & 0x01)} onChange={checkboxHandler(user.id, 0x01)} type="checkbox"/></td>
+                <td><input className="form-check-input" checked={(user.permission & 0x02)} onChange={checkboxHandler(user.id, 0x02)} type="checkbox"/></td>
+                <td><input className="form-check-input" checked={(user.permission & 0x04)} onChange={checkboxHandler(user.id, 0x04)} type="checkbox"/></td>
+                <td><input className="form-check-input" checked={(user.permission & 0x08)} onChange={checkboxHandler(user.id, 0x08)} type="checkbox"/></td>
+                <td><input className="form-check-input" checked={(user.permission & 0x80)} onChange={checkboxHandler(user.id, 0x80)} type="checkbox"/></td>
                 <td>
                   <button
-                    className="btn btn-secondary btn-sm btn-block"
+                    className={user.editing === 1 ? "btn btn-danger btn-sm btn-block" : "btn btn-secondary btn-sm btn-block"}
                     onClick={(e) => handleSubmit(user.id)}
                   > 
                     {user.editing === 1 ? "Update" : "Edit"}

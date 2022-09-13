@@ -11,6 +11,9 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from sqlalchemy.ext.automap import automap_base
+import pymysql
+pymysql.install_as_MySQLdb()
+user_dict = {}
 
 # obj to dict
 def as_dict(obj):
@@ -18,6 +21,14 @@ def as_dict(obj):
     # print("dict ", data)
     data.pop('_sa_instance_state', None)
     return data
+
+def getTableAndDBsession(current_user, table_name):
+    Base = automap_base()
+    Base.prepare(db.get_engine(app, current_user), reflect=True)
+    myTable = Base.classes[table_name]
+    myTable.as_dict = as_dict
+    sess = db.create_scoped_session(options={'bind': db.get_engine(app, current_user)})
+    return myTable, sess
 
 # check if current user has certain kind of permission
 def check_perms(perm):
@@ -45,44 +56,54 @@ class Perms:
 
 # connect to database by uri
 class DBSet(Resource):
+    @jwt_required()
     def post(self):
         data = request.get_json()
         # print(data)
         if not data:
             abort(400, "The request json is none")
-        app.config['SQLALCHEMY_BINDS'] = {'customDB' : data.get('uri')}
-        global Base
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = data.get('uri')
+        app.config['SQLALCHEMY_BINDS'] = bds
+        # app.config['SQLALCHEMY_BINDS'] = {current_user:data.get('uri')}
+        # print(current_app.config['SQLALCHEMY_BINDS'])
+        s1 = current_user + "_uri"
+        session[s1] = data.get('uri')
         Base = automap_base()
-        Base.prepare(db.get_engine(app, 'customDB'), reflect=True)
-        global sess
-        sess = db.create_scoped_session(options={'bind': db.get_engine(app, 'customDB')})
-        sess.expire_on_commit = False
+        Base.prepare(db.get_engine(app, current_user), reflect=True)
+        sess = db.create_scoped_session(options={'bind': db.get_engine(app, current_user)})
         try:
             # sess.query("1").from_statement(text("SELECT 1")).all() # mysql?
             sess.execute('SELECT 1')
         except:
             abort(404, "Connection Failed")
         tables = sorted(Base.classes.keys())
-        # set_uri(data.get('uri'),data.get('table_name'))
         return jsonify(tables)
 
 api.add_resource(DBSet, '/dbset')
 
 # get columns list of the chosen table
 class TableSet(Resource):
+    @jwt_required()
     def post(self):
         data = request.get_json()
-        print(data)
+        # print(data)
         if not data:
             abort(400, "The request json is none")
-        global myTable
-        myTable = Base.classes[data.get('table_name')]
-        myTable.as_dict = as_dict
-        # columns = myTable.__table__.columns.keys()
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = session.get(current_user+"_uri")
+        app.config['SQLALCHEMY_BINDS'] = bds
+        # print(current_app.config['SQLALCHEMY_BINDS'])
+        s2 = current_user + "_tb_name"
+        session[s2] = data.get('table_name')
+        myTable, sess = getTableAndDBsession(current_user, data.get('table_name'))
+        sess.close()
+        columns = myTable.__table__.columns.keys()
         dt_list = []
         for c in myTable.__table__.columns:
             dt_list.append({"c_name":str(c.name),"c_type":str(c.type)})
-        # print(dt_list)
         return jsonify(dt_list)
 
 api.add_resource(TableSet, '/tbset')
@@ -90,10 +111,16 @@ api.add_resource(TableSet, '/tbset')
 
 # shows the list of all employees, and lets you POST to add new employees
 class ItemsList(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
-        # TODO: select certain columns
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = session.get(current_user+"_uri")
+        app.config['SQLALCHEMY_BINDS'] = bds
+        # print(current_app.config['SQLALCHEMY_BINDS'])
+        myTable, sess = getTableAndDBsession(current_user, session.get(current_user+"_tb_name"))
         results = sess.query(myTable).all()
+        sess.close()
         # print("anmenzhebian: ", jsonify([r.as_dict() for r in results]).json())
         return jsonify([r.as_dict() for r in results])
 
@@ -102,25 +129,29 @@ class ItemsList(Resource):
         data = request.get_json()
         if not data:
             abort(400, "The request json is none")
-        print(data)
+        # print(data)
         if not check_perms(Perms.CREATE):
             abort(403, "CREATE permission are required to perform this operation")
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = session.get(current_user+"_uri")
+        app.config['SQLALCHEMY_BINDS'] = bds
+        myTable, sess = getTableAndDBsession(current_user, session.get(current_user+"_tb_name"))
         new_item = myTable(**data)
         sess.add(new_item)
-        sess.flush()
-        id_ = new_item.id
+        # sess.flush()
+        # id_ = new_item.id
         sess.commit()
         mylog = OpsLog(
             username = get_jwt_identity(),
             timestamp = datetime.now(),
-            db_uri = app.config['SQLALCHEMY_BINDS']['customDB'],
+            db_uri = app.config['SQLALCHEMY_BINDS'][current_user],
             tb_name = myTable.__table__.name,
             operation='CREATE',
-            ops_obj_id = id_,
             request_body = json.dumps(data)
         )
         mylog.save()
-
+        sess.close()
         return jsonify({"message":"Item Added"})
 
 api.add_resource(ItemsList, '/items')
@@ -129,13 +160,24 @@ api.add_resource(ItemsList, '/items')
 class Item(Resource):
     @jwt_required()
     def get(self, id):
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = session.get(current_user+"_uri")
+        app.config['SQLALCHEMY_BINDS'] = bds
+        myTable, sess = getTableAndDBsession(current_user, session.get(current_user+"_tb_name"))
         item = sess.query(myTable).get(id)
         if item is None:
             abort(400, "Item {} doesn't exist".format(id))
+        sess.close()
         return jsonify(item.as_dict())
 
     @jwt_required()
     def delete(self, id):
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = session.get(current_user+"_uri")
+        app.config['SQLALCHEMY_BINDS'] = bds
+        myTable, sess = getTableAndDBsession(current_user, session.get(current_user+"_tb_name"))
         item = sess.query(myTable).get(id)
         if item is None:
             abort(400, "Item {} doesn't exist".format(id))
@@ -146,12 +188,13 @@ class Item(Resource):
         mylog = OpsLog(
             username = get_jwt_identity(),
             timestamp = datetime.now(),
-            db_uri = app.config['SQLALCHEMY_BINDS']['customDB'],
+            db_uri = app.config['SQLALCHEMY_BINDS'][current_user],
             tb_name = myTable.__table__.name,
             operation='DELETE',
             ops_obj_id = id
         )
         mylog.save()
+        sess.close()
         return jsonify({'message': 'Item Deleted'})
 
     @jwt_required()
@@ -159,7 +202,12 @@ class Item(Resource):
         data = request.get_json()
         if not data:
             abort(400, "The request json is none")
-        print("data: ", data)
+        # print("data: ", data)
+        current_user=get_jwt_identity()
+        bds = current_app.config['SQLALCHEMY_BINDS']
+        bds[current_user] = session.get(current_user+"_uri")
+        app.config['SQLALCHEMY_BINDS'] = bds
+        myTable, sess = getTableAndDBsession(current_user, session.get(current_user+"_tb_name"))
         if not check_perms(Perms.UPDATE):
             abort(403, "UPDATE permission are required to perform this operation")
         item = sess.query(myTable).filter(myTable.id==id)
@@ -172,13 +220,14 @@ class Item(Resource):
         mylog = OpsLog(
             username=get_jwt_identity(),
             timestamp = datetime.now(),
-            db_uri = app.config['SQLALCHEMY_BINDS']['customDB'],
+            db_uri = app.config['SQLALCHEMY_BINDS'][current_user],
             tb_name = myTable.__table__.name,
             operation='UPDATE',
             ops_obj_id = id,
             request_body = json.dumps(data)
         )
         mylog.save()
+        sess.close()
         return jsonify({"message":"Item Updated"})
 
 api.add_resource(Item, '/items/<id>')
@@ -265,7 +314,7 @@ class Permission(Resource):
         data = request.get_json()
         if not data:
             abort(400, "The request json is none")
-        print(data)
+        # print(data)
         if not check_perms(Perms.ADMIN):
             abort(403, "ADMIN permission are required to perform this operation")
         target_user = db_user=Users.query.filter_by(id=id).first()
@@ -276,6 +325,19 @@ class Permission(Resource):
         return jsonify({"message":"permission updated"})
 
 api.add_resource(Permission, '/perms/<id>')
+
+class Logout(Resource):
+    @jwt_required()
+    def get(self):
+        current_user=get_jwt_identity()
+        app.config['SQLALCHEMY_BINDS'].pop(current_user, None)
+        s1 = current_user + "_uri"
+        s2 = current_user + "_tb_name"
+        session[s1] = False
+        session[s2] = False
+
+api.add_resource(Logout, '/out')
+
 
 if __name__ == "__main__":
     # app.run(debug=True)
