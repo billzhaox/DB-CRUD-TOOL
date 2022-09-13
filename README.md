@@ -110,10 +110,8 @@
 
 ## <a name="architecture">&sect; 项目架构</a>
 
-### <a name="layers">⊙ MVC三层架构</a>
-* View: 视图层，即展示给用户的界面，与用户直接进行交互；
-* Controller: 控制层，接收用户端的输入并调用模型去完成用户的需求，并将处理结果返回至视图层；
-* Model: 模型层，提供与数据库交互的能力；
+### <a name="layers">⊙ 三层架构模式</a>
+![](./3tier.png)
 
 ### <a name="tree">⊙ 目录结构</a>
 ```
