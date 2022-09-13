@@ -47,7 +47,7 @@
 > 
 > 后端Token校验：flask_jwt_extended
 >
->Token验证流程：  ![](./auth.png)
+>Token验证流程：  ![](./screenshots/auth.png)
 * 系统操作日志
 > 在增/删/改操作的后端接口中将当前操作信息插入至操作日志表，并在前端配置查看操作日志的页面
 * 用户权限管理 
@@ -111,7 +111,7 @@
 ## <a name="architecture">&sect; 项目架构</a>
 
 ### <a name="layers">⊙ 三层架构模式</a>
-![](./3tier.png)
+![](./screenshots/3tier.png)
 
 ### <a name="tree">⊙ 目录结构</a>
 ```
