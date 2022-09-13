@@ -1,8 +1,6 @@
-# 基于Flask + React的数据库CRUD工具
+# 基于Flask + React的数据库CRUD工具  
 
-赵誉雄  2022.07  
-实习课题：基于Web的数据库操作  
-<b>Github</b>: https://github.com/billzhaox/DB-CRUD-TOOL
+部署地址：https://db-crud-tool123.herokuapp.com/
 
 ![](./screenshots/CRUD.png)
 
@@ -35,7 +33,7 @@
 ## <a name="intro">&sect; 项目简介</a>
 
 ### <a name="summary">⊙ 简介</a> 
-本项目是一个基于Flask + React搭建的数据库CRUD工具，项目采用前后端分离的架构，符合MVC模式，功能完整，可支持多种数据库，并已部署至Heroku。用户输入数据库配置信息后，可选择相应数据表和字段进行前端显示和增/删/改/查操作；此外，项目还实现了登录注册、查看系统操作日志、用户权限管理等功能。
+本项目是一个基于Flask + React搭建的数据库CRUD工具，项目采用前后端分离的三层架构模式，功能完整，可支持多种数据库，并已部署至Heroku。用户输入数据库配置信息后，可选择相应数据表和字段进行前端显示和增/删/改/查操作；此外，项目还实现了登录注册、查看系统操作日志、用户权限管理等功能。
 
 ### <a name="features">⊙ 功能及实现</a> 
 * 自动获取数据库中所有数据表及其字段信息，并配置前端显示的字段
@@ -95,6 +93,7 @@
 ### <a name="frontend">⊙ 前端</a>  
 * React 18.2.0 前端开发框架
 * React Bootstrap UI组件库
+* Bootswatch Lux UI主题
 * React Router 响应式路由
 * React Hook Form 表单验证库
 * React Token Auth 登录验证库(Token)
@@ -193,6 +192,9 @@
 ![](./screenshots/permissions.png)
 
 ***
+
+ps: 数据表必须有primary key with a unique value
+mysql+pymysql
 
 ## <a name="reference">&sect; 参考</a>
 * [react文档](http://reactjs.cn/react/docs/getting-started-zh-CN.html)
