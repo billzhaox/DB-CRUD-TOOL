@@ -13,6 +13,7 @@
 #### &sect; [快速开始](#getting-started)
   * [安装](#installation)
   * [启动](#start)
+  * [注意事项](#notes)
   
 #### &sect; [技术栈](#tech)
   * [前端](#frontend)
@@ -85,6 +86,10 @@
 后端启动：在`backend/src`目录下：执行`python app.py`  
 前端启动：在`frontend`目录下： 执行`npm start`  
 如无意外，默认浏览器就会自动打开 `localhost:3000`，若浏览器没有自动弹出，则请自行手动访问  
+
+### <a name="notes">⊙ 注意事项</a>
+数据表需要有具有唯一值的主键  
+MySQL URI格式：mysql+pymysql://username:password@host:port/database  
 
 ***
 
@@ -190,9 +195,6 @@
 ![](./screenshots/permissions.png)
 
 ***
-
-ps: 数据表必须有primary key with a unique value
-mysql+pymysql
 
 ## <a name="reference">&sect; 参考</a>
 * [react文档](http://reactjs.cn/react/docs/getting-started-zh-CN.html)
