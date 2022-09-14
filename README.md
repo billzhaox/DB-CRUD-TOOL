@@ -20,7 +20,7 @@
   * [后端](#backend)
 
 #### &sect; [项目架构](#architecture)
-  * [MVC三层架构](#layers)
+  * [三层架构模式](#layers)
   * [目录结构](#tree)
    
 #### &sect; [部署](#deployment)
